@@ -21,14 +21,10 @@ const makeSut = (): SutTypes => {
 
   class AddAccountStub implements AddAccount {
     add (account: AddAccountModel): AccountModel {
-      const fakeAccount = {
-        id: 'valid_id',
-        name: 'valid_name',
-        email: 'valid_email@email.com',
-        password: 'valid_password'
+      return {
+        id: 'any_id',
+        ...account
       }
-
-      return fakeAccount
     }
   }
 
@@ -192,6 +188,29 @@ describe('SignUp Controller', () => {
     sut.handle(httpRequest)
 
     expect(addSpy).toHaveBeenCalledWith({
+      name: httpRequest.body.name,
+      email: httpRequest.body.email,
+      password: httpRequest.body.password
+    })
+  })
+
+  it('should return 200 on AddAccount success', () => {
+    const { sut } = makeSut()
+
+    const httpRequest = {
+      body: {
+        name: 'valid_name',
+        email: 'valid_any@mail.com',
+        password: 'valid_pwd',
+        passwordConfirmation: 'valid_pwd'
+      }
+    }
+
+    const httpResponse = sut.handle(httpRequest)
+
+    expect(httpResponse.statusCode).toEqual(200)
+    expect(httpResponse.body).toEqual({
+      id: expect.any(String),
       name: httpRequest.body.name,
       email: httpRequest.body.email,
       password: httpRequest.body.password
