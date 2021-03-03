@@ -77,4 +77,20 @@ describe('DbAddAccount', () => {
 
     expect(addSpy).toHaveBeenCalledWith({ ...accountFake, password: 'hashed_password' })
   })
+
+  it('should call return AccountModel on success', async () => {
+    const { sut } = makeSut()
+    const accountFake = {
+      name: 'Valid Name',
+      email: 'valid@email.com',
+      password: 'valid_password'
+    }
+
+    const account = await sut.add(accountFake)
+
+    expect(account).toEqual({
+      ...account,
+      id: expect.any(String)
+    })
+  })
 })
