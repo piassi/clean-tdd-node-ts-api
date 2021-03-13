@@ -1,3 +1,5 @@
+import { LogErrorRepository } from '../../data/protocols/log-error-repository'
+import { serverError } from '../../presentation/helpers/http-helper'
 import { Controller, HttpRequest, HttpResponse } from '../../presentation/protocols'
 import { LogControllerDecorator } from './LogControllerDecorator'
 
@@ -5,6 +7,7 @@ interface SutTypes {
   sut: LogControllerDecorator
   controllerStub: Controller
   httpResponseMock: HttpResponse
+  logErrorRepositoryStub: LogErrorRepository
 }
 
 const makeSut = (): SutTypes => {
@@ -15,6 +18,12 @@ const makeSut = (): SutTypes => {
     statusCode: 200
   }
 
+  class LogErrorRepositoryStub implements LogErrorRepository {
+    async log (stack: string): Promise<void> {}
+  }
+
+  const logErrorRepositoryStub = new LogErrorRepositoryStub()
+
   class ControllerStub implements Controller {
     async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
       return Promise.resolve(httpResponseMock)
@@ -22,12 +31,13 @@ const makeSut = (): SutTypes => {
   }
 
   const controllerStub = new ControllerStub()
-  const sut = new LogControllerDecorator(controllerStub)
+  const sut = new LogControllerDecorator(controllerStub, logErrorRepositoryStub)
 
   return {
     sut,
     controllerStub,
-    httpResponseMock
+    httpResponseMock,
+    logErrorRepositoryStub
   }
 }
 
@@ -44,5 +54,21 @@ describe('LogControllerDecorator', () => {
     const httpResponse = await sut.handle(requestMock)
     expect(controllerStubHandleSpy).toHaveBeenCalledWith(requestMock)
     expect(httpResponse).toEqual(httpResponseMock)
+  })
+
+  it('should call logErrorRepository with error stack', async () => {
+    const { sut, controllerStub, logErrorRepositoryStub } = makeSut()
+    const errorMock = new Error('Error')
+    errorMock.stack = 'error_stack'
+    jest.spyOn(controllerStub, 'handle').mockResolvedValueOnce(serverError(errorMock))
+    const logSpy = jest.spyOn(logErrorRepositoryStub, 'log')
+    const requestMock = {
+      body: {
+        test: 'Mock'
+      }
+    }
+
+    await sut.handle(requestMock)
+    expect(logSpy).toHaveBeenCalledWith(errorMock.stack)
   })
 })
