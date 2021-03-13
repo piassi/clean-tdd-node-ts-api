@@ -42,7 +42,7 @@ export class SignUpController implements Controller {
         statusCode: 200
       }
     } catch (error) {
-      return serverError(error?.message)
+      return serverError(error)
     }
   }
 }

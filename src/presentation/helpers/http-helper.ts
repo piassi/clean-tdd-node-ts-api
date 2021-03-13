@@ -8,9 +8,9 @@ export function badRequest (error: Error): HttpResponse {
   }
 }
 
-export function serverError (message: string): HttpResponse {
+export function serverError (error: Error): HttpResponse {
   return {
     statusCode: 500,
-    body: new ServerError(message)
+    body: new ServerError(error)
   }
 }
