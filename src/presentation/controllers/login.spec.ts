@@ -1,3 +1,4 @@
+import { AuthCredentials, Authenticator } from '../../domain/usecases/authenticator'
 import { InvalidParamError, MissingParamError } from '../errors'
 import { badRequest, serverError } from '../helpers/http-helper'
 import { EmailValidator, HttpRequest } from '../protocols'
@@ -6,6 +7,7 @@ import { LoginController } from './login'
 interface SutTypes {
   sut: LoginController
   emailValidatorStub: EmailValidator
+  authenticatorStub: Authenticator
 }
 
 const makeSut = (): SutTypes => {
@@ -17,11 +19,20 @@ const makeSut = (): SutTypes => {
 
   const emailValidatorStub = new EmailValidatorStub()
 
-  const sut = new LoginController(emailValidatorStub)
+  class AuthenticatorStub implements Authenticator {
+    async auth (credentials: AuthCredentials): Promise<string> {
+      return 'valid_token'
+    }
+  }
+
+  const authenticatorStub = new AuthenticatorStub()
+
+  const sut = new LoginController(emailValidatorStub, authenticatorStub)
 
   return {
     sut,
-    emailValidatorStub
+    emailValidatorStub,
+    authenticatorStub
   }
 }
 
@@ -82,5 +93,24 @@ describe('Login Controller', () => {
 
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse).toEqual(serverError(errorMock))
+  })
+
+  it('should call Authenticator with email and password, then return user token', async () => {
+    const { sut, authenticatorStub } = makeSut()
+
+    const httpRequest: HttpRequest = {
+      body: {
+        password: 'valid_password',
+        email: 'valid@email.com'
+      }
+    }
+
+    const tokenMock = 'tokenMock'
+    const authSpy = jest.spyOn(authenticatorStub, 'auth').mockResolvedValueOnce(tokenMock)
+
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(authSpy).toHaveBeenCalledWith(httpRequest.body)
+    expect(httpResponse.body).toEqual(tokenMock)
   })
 })
