@@ -111,7 +111,10 @@ describe('Login Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
 
     expect(authSpy).toHaveBeenCalledWith(httpRequest.body)
-    expect(httpResponse.body).toEqual(tokenMock)
+    expect(httpResponse).toEqual({
+      statusCode: 200,
+      body: tokenMock
+    })
   })
 
   it('should return 401 if invalid user credentials is provided', async () => {
