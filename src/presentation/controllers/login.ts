@@ -1,6 +1,6 @@
 import { Authenticator } from '../../domain/usecases/authenticator'
 import { InvalidParamError, MissingParamError } from '../errors'
-import { badRequest, serverError } from '../helpers/http-helper'
+import { badRequest, serverError, unauthorized } from '../helpers/http-helper'
 import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../protocols'
 
 export class LoginController implements Controller {
@@ -31,6 +31,10 @@ export class LoginController implements Controller {
         email,
         password
       })
+
+      if (!authToken) {
+        return unauthorized()
+      }
 
       return {
         body: authToken,
