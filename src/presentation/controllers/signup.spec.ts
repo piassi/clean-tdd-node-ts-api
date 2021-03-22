@@ -1,6 +1,7 @@
 import { AccountModel } from '../../domain/models/account'
 import { AddAccount, AddAccountModel } from '../../domain/usecases/add-account'
 import { InvalidParamError, MissingParamError, ServerError } from '../errors'
+import { badRequest } from '../helpers/http-helper'
 import { Validation } from '../helpers/validators/validation'
 import { EmailValidator } from '../protocols'
 import { SignUpController } from './signup'
@@ -246,5 +247,20 @@ describe('SignUp Controller', () => {
     await sut.handle(httpRequest)
 
     expect(validateSpy).toHaveBeenCalledWith(httpRequest.body)
+  })
+
+  it('should return 400 if Validation fails', async () => {
+    const { sut, validationStub } = makeSut()
+    const httpRequest = {
+      body: {}
+    }
+
+    const errorMock = new Error('generic error!')
+
+    jest.spyOn(validationStub, 'validate').mockReturnValueOnce(errorMock)
+
+    const httpResponse = await sut.handle(httpRequest)
+
+    expect(httpResponse).toEqual(badRequest(errorMock))
   })
 })
