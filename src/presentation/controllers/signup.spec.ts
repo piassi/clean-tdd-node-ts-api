@@ -53,7 +53,7 @@ const makeSut = (): SutTypes => {
 
 describe('SignUp Controller', () => {
   it('should return 400 if no name is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, validationStub } = makeSut()
     const httpRequest = {
       body: {
         email: 'any@mail.com',
@@ -61,6 +61,8 @@ describe('SignUp Controller', () => {
         passwordConfirmation: '654654'
       }
     }
+
+    jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new MissingParamError('name'))
 
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
@@ -68,7 +70,7 @@ describe('SignUp Controller', () => {
   })
 
   it('should return 400 if no email is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, validationStub } = makeSut()
     const httpRequest = {
       body: {
         name: 'name',
@@ -77,13 +79,15 @@ describe('SignUp Controller', () => {
       }
     }
 
+    jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new MissingParamError('email'))
+
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('email'))
   })
 
   it('should return 400 if no password is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, validationStub } = makeSut()
     const httpRequest = {
       body: {
         name: 'name',
@@ -91,24 +95,11 @@ describe('SignUp Controller', () => {
       }
     }
 
+    jest.spyOn(validationStub, 'validate').mockReturnValueOnce(new MissingParamError('password'))
+
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('password'))
-  })
-
-  it('should return 400 if no passwordConfirmation is provided', async () => {
-    const { sut } = makeSut()
-    const httpRequest = {
-      body: {
-        name: 'name',
-        email: 'any@mail.com',
-        password: '123'
-      }
-    }
-
-    const httpResponse = await sut.handle(httpRequest)
-    expect(httpResponse.statusCode).toBe(400)
-    expect(httpResponse.body).toEqual(new MissingParamError('passwordConfirmation'))
   })
 
   it('should return 400 if password confirmation fails', async () => {
