@@ -10,4 +10,13 @@ describe('Email validation', () => {
     })
     expect(error).toEqual(new InvalidParamError(fieldName))
   })
+
+  it('should return null if valid email is provided', () => {
+    const fieldName = 'email'
+    const sut = new EmailValidation(fieldName)
+    const error = sut.validate({
+      email: 'valid@email.com'
+    })
+    expect(error).toBe(null)
+  })
 })
