@@ -1,4 +1,4 @@
-import { EmailValidation } from '../../presentation/helpers/validators/email-validation'
+import { EmailValidation } from '../../presentation/helpers/validators/email-validation/email-validation'
 import { EqualFieldsValidation } from '../../presentation/helpers/validators/equal-fields-validation'
 import { RequiredFieldsValidation } from '../../presentation/helpers/validators/required-fields-validation'
 import { Validation } from '../../presentation/helpers/validators/validation'
