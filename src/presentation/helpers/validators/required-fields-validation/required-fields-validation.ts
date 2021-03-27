@@ -1,5 +1,5 @@
-import { InvalidParamError } from '../../errors'
-import { Validation } from './validation'
+import { InvalidParamError } from '../../../errors'
+import { Validation } from '../validation'
 
 export class RequiredFieldsValidation implements Validation {
   constructor (private readonly fieldNames: string[]) {}
