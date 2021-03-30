@@ -1,6 +1,7 @@
 import { AccountModel } from '../../../domain/models/account'
 import { AuthCredentials } from '../../../domain/usecases/authenticator'
 import { HashComparer } from '../../protocols/crypto/hash-comparer'
+import { TokenGenerator } from '../../protocols/crypto/token-generator'
 import { LoadAccountByEmailRepository } from '../../protocols/db/load-account-by-email-repository'
 import { DbAuthenticator } from './db-authenticator'
 
@@ -9,8 +10,10 @@ describe('DbAuthenticator', () => {
     sut: DbAuthenticator
     credentialsMock: AuthCredentials
     dbAccountMock: AccountModel
+    tokenMock: string
     loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
     hashComparerStub: HashComparer
+    tokenGeneratorStub: TokenGenerator
   }
 
   const makeSut = (): SutTypes => {
@@ -26,6 +29,8 @@ describe('DbAuthenticator', () => {
       password: 'userpass123'
     }
 
+    const tokenMock = 'access_token'
+
     class LoadAccountByEmailRepositoryStub implements LoadAccountByEmailRepository {
       async load (email: string): Promise<AccountModel> {
         return Promise.resolve(dbAccountMock)
@@ -40,14 +45,27 @@ describe('DbAuthenticator', () => {
     }
     const hashComparerStub = new HashComparerStub()
 
-    const sut = new DbAuthenticator(loadAccountByEmailRepositoryStub, hashComparerStub)
+    class TokenGeneratorStub implements TokenGenerator {
+      async generate (value: string): Promise<string> {
+        return Promise.resolve(tokenMock)
+      }
+    }
+    const tokenGeneratorStub = new TokenGeneratorStub()
+
+    const sut = new DbAuthenticator(
+      loadAccountByEmailRepositoryStub,
+      hashComparerStub,
+      tokenGeneratorStub
+    )
 
     return {
       sut,
       credentialsMock,
       dbAccountMock,
+      tokenMock,
       loadAccountByEmailRepositoryStub,
-      hashComparerStub
+      hashComparerStub,
+      tokenGeneratorStub
     }
   }
 
@@ -85,5 +103,15 @@ describe('DbAuthenticator', () => {
     const accessToken = await sut.auth(credentialsMock)
 
     expect(accessToken).toBeNull()
+  })
+
+  it('should generate and return accessToken', async () => {
+    const { sut, credentialsMock, dbAccountMock, tokenMock, tokenGeneratorStub } = makeSut()
+
+    const generateSpy = jest.spyOn(tokenGeneratorStub, 'generate')
+    const accessToken = await sut.auth(credentialsMock)
+
+    expect(generateSpy).toHaveBeenCalledWith(dbAccountMock.id)
+    expect(accessToken).toEqual(tokenMock)
   })
 })
