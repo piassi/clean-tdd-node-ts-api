@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { Encrypter } from '../../data/protocols/encrypter'
+import { Encrypter } from '../../data/protocols/crypto/encrypter'
 import { BcryptAdapter } from './bcrypt-adapter'
 
 interface SutTypes {
