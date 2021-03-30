@@ -77,4 +77,13 @@ describe('DbAuthenticator', () => {
 
     expect(compareSpy).toHaveBeenCalledWith(credentialsMock.password, dbAccountMock.password)
   })
+
+  it('should return null if HashComparer returns false', async () => {
+    const { sut, credentialsMock, hashComparerStub } = makeSut()
+
+    jest.spyOn(hashComparerStub, 'compare').mockResolvedValueOnce(false)
+    const accessToken = await sut.auth(credentialsMock)
+
+    expect(accessToken).toBeNull()
+  })
 })
