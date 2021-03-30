@@ -44,4 +44,13 @@ describe('DbAuthenticator', () => {
 
     expect(loadSpy).toHaveBeenCalledWith(credentials.email)
   })
+
+  it('should call return null if LoadAccountByEmailRepository user does not exists', async () => {
+    const { sut, credentials, loadAccountByEmailRepositoryStub } = makeSut()
+
+    jest.spyOn(loadAccountByEmailRepositoryStub, 'load').mockResolvedValueOnce(null)
+    const accessToken = await sut.auth(credentials)
+
+    expect(accessToken).toBe(null)
+  })
 })
