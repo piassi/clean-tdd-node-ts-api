@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt'
-import { Encrypter } from '../../data/protocols/crypto/encrypter'
+import { Hasher } from '../../data/protocols/crypto/hasher'
 import { BcryptAdapter } from './bcrypt-adapter'
 
 interface SutTypes {
-  sut: Encrypter
+  sut: Hasher
   salt: number
 }
 
@@ -22,7 +22,7 @@ describe('Bcrypt adapter', () => {
     const { sut, salt } = makeSut()
     const bcryptHashSpy = jest.spyOn(bcrypt, 'hash')
     const value = 'any_value'
-    await sut.encrypt(value)
+    await sut.hash(value)
     expect(bcryptHashSpy).toHaveBeenCalledWith(value, salt)
   })
 
@@ -30,7 +30,7 @@ describe('Bcrypt adapter', () => {
     const { sut } = makeSut()
     jest.spyOn(bcrypt, 'hash').mockResolvedValueOnce('hashed_value')
     const value = 'any_value'
-    const hashed = await sut.encrypt(value)
+    const hashed = await sut.hash(value)
     expect(hashed).toEqual('hashed_value')
   })
 
@@ -38,7 +38,7 @@ describe('Bcrypt adapter', () => {
     const { sut } = makeSut()
     jest.spyOn(bcrypt, 'hash').mockRejectedValueOnce(new Error())
     const value = 'any_value'
-    const hashed = sut.encrypt(value)
+    const hashed = sut.hash(value)
     await expect(hashed).rejects.toThrow()
   })
 })
