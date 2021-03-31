@@ -19,19 +19,40 @@ describe('Account Mongo Repository', () => {
     await accountsCollection.deleteMany({})
   })
 
-  it('should return an account on success', async () => {
-    const sut = makeSut()
-    const accountFakeData = {
-      name: 'name',
-      email: 'email@email.com',
-      password: '123'
-    }
+  describe('add', () => {
+    it('should return an account on success', async () => {
+      const sut = makeSut()
+      const accountFakeData = {
+        name: 'name',
+        email: 'email@email.com',
+        password: '123'
+      }
 
-    const account = await sut.add(accountFakeData)
+      const account = await sut.add(accountFakeData)
 
-    expect(account).toEqual({
-      id: expect.any(String),
-      ...accountFakeData
+      expect(account).toEqual({
+        id: expect.any(String),
+        ...accountFakeData
+      })
+    })
+  })
+
+  describe('loadByEmail', () => {
+    it('should return an account on success', async () => {
+      const sut = makeSut()
+      const accountFakeData = {
+        name: 'name',
+        email: 'email@email.com',
+        password: '123'
+      }
+
+      await sut.add(accountFakeData)
+      const account = await sut.loadByEmail(accountFakeData.email)
+
+      expect(account).toEqual({
+        id: expect.any(String),
+        ...accountFakeData
+      })
     })
   })
 })
