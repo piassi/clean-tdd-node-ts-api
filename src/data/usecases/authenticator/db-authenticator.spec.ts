@@ -55,7 +55,7 @@ describe('DbAuthenticator', () => {
     const encrypterStub = new EncrypterStub()
 
     class UpdateAccessTokenRepositoryStub implements UpdateAccessTokenRepository {
-      async update (id: string, accessToken: string): Promise<void> {
+      async updateAccessToken (id: string, accessToken: string): Promise<void> {
         return Promise.resolve(null)
       }
     }
@@ -129,7 +129,7 @@ describe('DbAuthenticator', () => {
   it('should call UpdateAccessTokenRepository with correct values', async () => {
     const { sut, credentialsMock, dbAccountMock, updateAccessTokenRepositoryStub } = makeSut()
 
-    const updateSpy = jest.spyOn(updateAccessTokenRepositoryStub, 'update')
+    const updateSpy = jest.spyOn(updateAccessTokenRepositoryStub, 'updateAccessToken')
     const accessToken = await sut.auth(credentialsMock)
 
     expect(updateSpy).toHaveBeenCalledWith(dbAccountMock.id, accessToken)
