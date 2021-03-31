@@ -13,7 +13,7 @@ export class DbAuthenticator implements Authenticator {
   ) {}
 
   async auth (credentials: AuthCredentials): Promise<string> {
-    const user = await this.loadAccountByEmailRepository.load(credentials.email)
+    const user = await this.loadAccountByEmailRepository.loadByEmail(credentials.email)
     if (!user) {
       return null
     }

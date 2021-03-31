@@ -34,7 +34,7 @@ describe('DbAuthenticator', () => {
     const tokenMock = 'access_token'
 
     class LoadAccountByEmailRepositoryStub implements LoadAccountByEmailRepository {
-      async load (email: string): Promise<AccountModel> {
+      async loadByEmail (email: string): Promise<AccountModel> {
         return Promise.resolve(dbAccountMock)
       }
     }
@@ -83,7 +83,7 @@ describe('DbAuthenticator', () => {
   it('should call LoadAccountByEmailRepository with correct email', async () => {
     const { sut, credentialsMock, loadAccountByEmailRepositoryStub } = makeSut()
 
-    const loadSpy = jest.spyOn(loadAccountByEmailRepositoryStub, 'load')
+    const loadSpy = jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail')
     await sut.auth(credentialsMock)
 
     expect(loadSpy).toHaveBeenCalledWith(credentialsMock.email)
@@ -92,7 +92,7 @@ describe('DbAuthenticator', () => {
   it('should call return null if LoadAccountByEmailRepository user does not exists', async () => {
     const { sut, credentialsMock, loadAccountByEmailRepositoryStub } = makeSut()
 
-    jest.spyOn(loadAccountByEmailRepositoryStub, 'load').mockResolvedValueOnce(null)
+    jest.spyOn(loadAccountByEmailRepositoryStub, 'loadByEmail').mockResolvedValueOnce(null)
     const accessToken = await sut.auth(credentialsMock)
 
     expect(accessToken).toBe(null)
