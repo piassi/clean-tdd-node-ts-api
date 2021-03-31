@@ -3,6 +3,7 @@ import { AuthCredentials } from '../../../domain/usecases/authenticator'
 import { HashComparer } from '../../protocols/crypto/hash-comparer'
 import { TokenGenerator } from '../../protocols/crypto/token-generator'
 import { LoadAccountByEmailRepository } from '../../protocols/db/load-account-by-email-repository'
+import { UpdateAccessTokenRepository } from '../../protocols/db/update-access-token-repository'
 import { DbAuthenticator } from './db-authenticator'
 
 describe('DbAuthenticator', () => {
@@ -14,6 +15,7 @@ describe('DbAuthenticator', () => {
     loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
     hashComparerStub: HashComparer
     tokenGeneratorStub: TokenGenerator
+    updateAccessTokenRepositoryStub: UpdateAccessTokenRepository
   }
 
   const makeSut = (): SutTypes => {
@@ -52,10 +54,18 @@ describe('DbAuthenticator', () => {
     }
     const tokenGeneratorStub = new TokenGeneratorStub()
 
+    class UpdateAccessTokenRepositoryStub implements UpdateAccessTokenRepository {
+      async update (id: string, accessToken: string): Promise<void> {
+        return Promise.resolve(null)
+      }
+    }
+    const updateAccessTokenRepositoryStub = new UpdateAccessTokenRepositoryStub()
+
     const sut = new DbAuthenticator(
       loadAccountByEmailRepositoryStub,
       hashComparerStub,
-      tokenGeneratorStub
+      tokenGeneratorStub,
+      updateAccessTokenRepositoryStub
     )
 
     return {
@@ -65,7 +75,8 @@ describe('DbAuthenticator', () => {
       tokenMock,
       loadAccountByEmailRepositoryStub,
       hashComparerStub,
-      tokenGeneratorStub
+      tokenGeneratorStub,
+      updateAccessTokenRepositoryStub
     }
   }
 
@@ -113,5 +124,14 @@ describe('DbAuthenticator', () => {
 
     expect(generateSpy).toHaveBeenCalledWith(dbAccountMock.id)
     expect(accessToken).toEqual(tokenMock)
+  })
+
+  it('should call UpdateAccessTokenRepository with correct values', async () => {
+    const { sut, credentialsMock, dbAccountMock, updateAccessTokenRepositoryStub } = makeSut()
+
+    const updateSpy = jest.spyOn(updateAccessTokenRepositoryStub, 'update')
+    const accessToken = await sut.auth(credentialsMock)
+
+    expect(updateSpy).toHaveBeenCalledWith(dbAccountMock.id, accessToken)
   })
 })
