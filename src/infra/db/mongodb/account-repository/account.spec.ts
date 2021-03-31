@@ -54,5 +54,18 @@ describe('Account Mongo Repository', () => {
         ...accountFakeData
       })
     })
+
+    it('should return null if account do not exists', async () => {
+      const sut = makeSut()
+      const accountFakeData = {
+        name: 'name',
+        email: 'email@email.com',
+        password: '123'
+      }
+
+      const account = await sut.loadByEmail(accountFakeData.email)
+
+      expect(account).toBe(null)
+    })
   })
 })
