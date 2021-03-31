@@ -1,7 +1,7 @@
 import { AccountModel } from '../../../domain/models/account'
 import { AuthCredentials } from '../../../domain/usecases/authenticator'
 import { HashComparer } from '../../protocols/crypto/hash-comparer'
-import { TokenGenerator } from '../../protocols/crypto/token-generator'
+import { Encrypter } from '../../protocols/crypto/encrypter'
 import { LoadAccountByEmailRepository } from '../../protocols/db/load-account-by-email-repository'
 import { UpdateAccessTokenRepository } from '../../protocols/db/update-access-token-repository'
 import { DbAuthenticator } from './db-authenticator'
@@ -14,7 +14,7 @@ describe('DbAuthenticator', () => {
     tokenMock: string
     loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository
     hashComparerStub: HashComparer
-    tokenGeneratorStub: TokenGenerator
+    encrypterStub: Encrypter
     updateAccessTokenRepositoryStub: UpdateAccessTokenRepository
   }
 
@@ -47,12 +47,12 @@ describe('DbAuthenticator', () => {
     }
     const hashComparerStub = new HashComparerStub()
 
-    class TokenGeneratorStub implements TokenGenerator {
-      async generate (value: string): Promise<string> {
+    class EncrypterStub implements Encrypter {
+      async encrypt (value: string): Promise<string> {
         return Promise.resolve(tokenMock)
       }
     }
-    const tokenGeneratorStub = new TokenGeneratorStub()
+    const encrypterStub = new EncrypterStub()
 
     class UpdateAccessTokenRepositoryStub implements UpdateAccessTokenRepository {
       async update (id: string, accessToken: string): Promise<void> {
@@ -64,7 +64,7 @@ describe('DbAuthenticator', () => {
     const sut = new DbAuthenticator(
       loadAccountByEmailRepositoryStub,
       hashComparerStub,
-      tokenGeneratorStub,
+      encrypterStub,
       updateAccessTokenRepositoryStub
     )
 
@@ -75,7 +75,7 @@ describe('DbAuthenticator', () => {
       tokenMock,
       loadAccountByEmailRepositoryStub,
       hashComparerStub,
-      tokenGeneratorStub,
+      encrypterStub,
       updateAccessTokenRepositoryStub
     }
   }
@@ -117,9 +117,9 @@ describe('DbAuthenticator', () => {
   })
 
   it('should generate and return accessToken', async () => {
-    const { sut, credentialsMock, dbAccountMock, tokenMock, tokenGeneratorStub } = makeSut()
+    const { sut, credentialsMock, dbAccountMock, tokenMock, encrypterStub } = makeSut()
 
-    const generateSpy = jest.spyOn(tokenGeneratorStub, 'generate')
+    const generateSpy = jest.spyOn(encrypterStub, 'encrypt')
     const accessToken = await sut.auth(credentialsMock)
 
     expect(generateSpy).toHaveBeenCalledWith(dbAccountMock.id)

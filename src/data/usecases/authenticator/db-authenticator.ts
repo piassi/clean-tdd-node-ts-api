@@ -1,6 +1,6 @@
 import { AuthCredentials, Authenticator } from '../../../domain/usecases/authenticator'
 import { HashComparer } from '../../protocols/crypto/hash-comparer'
-import { TokenGenerator } from '../../protocols/crypto/token-generator'
+import { Encrypter } from '../../protocols/crypto/encrypter'
 import { LoadAccountByEmailRepository } from '../../protocols/db/load-account-by-email-repository'
 import { UpdateAccessTokenRepository } from '../../protocols/db/update-access-token-repository'
 
@@ -8,7 +8,7 @@ export class DbAuthenticator implements Authenticator {
   constructor (
     private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository,
     private readonly hashComparer: HashComparer,
-    private readonly tokenGenerator: TokenGenerator,
+    private readonly ecrypter: Encrypter,
     private readonly updateAccessTokenRepository: UpdateAccessTokenRepository
   ) {}
 
@@ -23,7 +23,7 @@ export class DbAuthenticator implements Authenticator {
       return null
     }
 
-    const accessToken = await this.tokenGenerator.generate(user.id)
+    const accessToken = await this.ecrypter.encrypt(user.id)
 
     await this.updateAccessTokenRepository.update(user.id, accessToken)
 
