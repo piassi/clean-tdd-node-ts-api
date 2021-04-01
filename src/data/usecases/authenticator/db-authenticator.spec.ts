@@ -2,8 +2,8 @@ import { AccountModel } from '../../../domain/models/account'
 import { AuthCredentials } from '../../../domain/usecases/authenticator'
 import { HashComparer } from '../../protocols/crypto/hash-comparer'
 import { Encrypter } from '../../protocols/crypto/encrypter'
-import { LoadAccountByEmailRepository } from '../../protocols/db/load-account-by-email-repository'
-import { UpdateAccessTokenRepository } from '../../protocols/db/update-access-token-repository'
+import { LoadAccountByEmailRepository } from '../../protocols/db/account/load-account-by-email-repository'
+import { UpdateAccessTokenRepository } from '../../protocols/db/account/update-access-token-repository'
 import { DbAuthenticator } from './db-authenticator'
 
 describe('DbAuthenticator', () => {
