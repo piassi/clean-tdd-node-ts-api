@@ -59,5 +59,15 @@ describe('Login Routes', () => {
         })
         .expect(401)
     })
+
+    it('should return 401 status if user does not exists', async () => {
+      await request(app)
+        .post('/api/login')
+        .send({
+          email: 'email@email.com',
+          password: '123'
+        })
+        .expect(401)
+    })
   })
 })
