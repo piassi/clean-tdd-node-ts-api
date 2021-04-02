@@ -40,5 +40,24 @@ describe('Login Routes', () => {
         .expect(200)
         .expect('Content-Length', '99')
     })
+
+    it('should return 401 status if invalid credentials are provided', async () => {
+      const hasher = new BcryptAdapter(12)
+      const password = await hasher.hash('756adasd')
+
+      await accountsCollection.insertOne({
+        name: 'Test',
+        email: 'email@email.com',
+        password
+      })
+
+      await request(app)
+        .post('/api/login')
+        .send({
+          email: 'emaila@email.com',
+          password: 'asd'
+        })
+        .expect(401)
+    })
   })
 })
