@@ -5,11 +5,12 @@ import { AccountMongoRepository } from '../../../infra/db/mongodb/account-reposi
 import { LoginController } from '../../../presentation/controllers/login'
 import { RequiredFieldsValidation } from '../../../presentation/helpers/validators/required-fields-validation/required-fields-validation'
 import { ValidationComposite } from '../../../presentation/helpers/validators/validation-composite'
+import env from '../../config/env'
 
 export const makeLoginController = (): LoginController => {
   const accountMongoRepository = new AccountMongoRepository()
   const bcryptAdapter = new BcryptAdapter(12)
-  const jwtAdapter = new JwtAdapter('secret')
+  const jwtAdapter = new JwtAdapter(env.secret)
   const dbAuthenticator = new DbAuthenticator(accountMongoRepository, bcryptAdapter, jwtAdapter, accountMongoRepository)
   const validation = new ValidationComposite([
     new RequiredFieldsValidation(['email', 'password'])
